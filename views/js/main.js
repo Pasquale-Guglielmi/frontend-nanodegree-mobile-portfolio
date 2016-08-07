@@ -495,17 +495,23 @@ window.addEventListener('scroll', updatePositions);
 
 // Generates the sliding pizzas when the page loads.
 document.addEventListener('DOMContentLoaded', function() {
-  var cols = 8;
+  var animationField = document.querySelector("#movingPizzas1");
+  // pizza generator based on viewport dimensions to minimize number of generated pizzas
+  var vw = window.innerWidth;
+  var vh = window.innerHeight;
   var s = 256;
-  for (var i = 0; i < 200; i++) {
+  var cols = Math.floor(vw/s) + 1; // + 1 is to make sure pizzas cover all the viewport
+  var rows = Math.floor(vh/s) + 1;
+  var n = cols*rows;
+  for (var i = 0; i < n; i++) {
     var elem = document.createElement('img');
     elem.className = 'mover';
-    elem.src = "images/pizza.png";
+    elem.src = "images/moving_pizza.png";
     elem.style.height = "100px";
     elem.style.width = "73.333px";
     elem.basicLeft = (i % cols) * s;
     elem.style.top = (Math.floor(i / cols) * s) + 'px';
-    document.querySelector("#movingPizzas1").appendChild(elem);
+    animationField.appendChild(elem);
   }
   updatePositions();
 });
