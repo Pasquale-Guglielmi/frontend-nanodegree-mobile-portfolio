@@ -18,6 +18,9 @@ cameron *at* udacity *dot* com
 
 // As you may have realized, this website randomly generates pizzas.
 // Here are arrays of all possible pizza ingredients.
+
+"use strict";
+
 var pizzaIngredients = {};
 pizzaIngredients.meats = [
   "Pepperoni",
@@ -405,17 +408,17 @@ var resizePizzas = function(size) {
   // Iterates through pizza elements on the page and changes their widths
   function changePizzaSizes(size) {
 
-    // Changes the value for the size of the pizza above the slider and pizzas' size
+    // Used to change both size of pizzas and slider's label (#pizzaSize)
     function sizeSwitcher (size) {
       switch(size) {
         case "1":
-          document.querySelector("#pizzaSize").innerHTML = "Small";
+          document.getElementById("pizzaSize").innerHTML = "Small";
           return 25;
         case "2":
-          document.querySelector("#pizzaSize").innerHTML = "Medium";
+          document.getElementById("pizzaSize").innerHTML = "Medium";
           return 33.33;
         case "3":
-          document.querySelector("#pizzaSize").innerHTML = "Large";
+          document.getElementById("pizzaSize").innerHTML = "Large";
           return 50;
         default:
           console.log("bug in sizeSwitcher");
@@ -423,6 +426,7 @@ var resizePizzas = function(size) {
     }
 
     var newsize = sizeSwitcher(size);
+    // we query the document only once, outside the loop, to prevent forced synchronous layout
     var myPizzas = document.querySelectorAll(".randomPizzaContainer");
     for (var i = 0; i < myPizzas.length; i++) {
       myPizzas[i].style.width = newsize + "%";
@@ -469,14 +473,28 @@ function logAverageFrame(times) {   // times is the array of User Timing measure
 // The following code for sliding background pizzas was pulled from Ilya's demo found at:
 // https://www.igvita.com/slides/2012/devtools-tips-and-tricks/jank-demo.html
 
+/**
+  * variables needed to decouple updatePositions() from the 'scroll' event
+  * and to make it handled by a requestAnimationFrame
+  */
+var scrollTop = 0,
+    animation = false;
+
 // Moves the sliding background pizzas based on scroll position
 function updatePositions() {
+  animation = false;
   frame++;
   window.performance.mark("mark_start_frame");
 
   var items = document.querySelectorAll('.mover');
+  /**
+    * Variable declared to keep the .scrollTop query out of the
+    * 'for' loop to prevent forced synchronous layout
+    */
+  var scroll = scrollTop;
+
   for (var i = 0; i < items.length; i++) {
-    var phase = Math.sin((document.body.scrollTop / 1250) + (i % 5));
+    var phase = Math.sin((scroll / 1250) + (i % 5));
     items[i].style.left = items[i].basicLeft + 100 * phase + 'px';
   }
 
@@ -489,19 +507,33 @@ function updatePositions() {
     logAverageFrame(timesToUpdatePosition);
   }
 }
+/**
+  * onScroll updates scrollTop and fires an animation frame only
+  * if no other animations have been already requested
+  */
+function onScroll() {
+  scrollTop = document.body.scrollTop;
+  requestAnimation();
+}
+// check if other animations have been already requested
+function requestAnimation() {
+  if(!animation) {
+    requestAnimationFrame(updatePositions);
+  }
+  animation = true;
+}
 
-// runs updatePositions on scroll
-window.addEventListener('scroll', updatePositions);
+window.addEventListener('scroll', onScroll);
 
 // Generates the sliding pizzas when the page loads.
 document.addEventListener('DOMContentLoaded', function() {
-  var animationField = document.querySelector("#movingPizzas1");
+  var animationField = document.getElementById("movingPizzas1");
   // pizza generator based on viewport dimensions to minimize number of generated pizzas
   var vw = window.innerWidth;
   var vh = window.innerHeight;
   var s = 256;
-  var cols = Math.floor(vw/s) + 1; // + 1 is to make sure pizzas cover all the viewport
-  var rows = Math.floor(vh/s) + 1;
+  var cols = Math.floor(vw/s + 1); // '+ 1' is to make sure pizzas cover all the viewport
+  var rows = Math.floor(vh/s + 1);
   var n = cols*rows;
   for (var i = 0; i < n; i++) {
     var elem = document.createElement('img');
