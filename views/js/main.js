@@ -427,7 +427,7 @@ var resizePizzas = function(size) {
 
     var newsize = sizeSwitcher(size);
     // we query the document only once, outside the loop, to prevent forced synchronous layout
-    var myPizzas = document.querySelectorAll(".randomPizzaContainer");
+    var myPizzas = document.getElementsByClassName("randomPizzaContainer");
     for (var i = 0; i < myPizzas.length; i++) {
       myPizzas[i].style.width = newsize + "%";
     }
@@ -445,8 +445,8 @@ var resizePizzas = function(size) {
 window.performance.mark("mark_start_generating"); // collect timing data
 
 // This for-loop actually creates and appends all of the pizzas when the page loads
+var pizzasDiv = document.getElementById("randomPizzas");
 for (var i = 2; i < 100; i++) {
-  var pizzasDiv = document.getElementById("randomPizzas");
   pizzasDiv.appendChild(pizzaElementGenerator(i));
 }
 
@@ -486,16 +486,18 @@ function updatePositions() {
   frame++;
   window.performance.mark("mark_start_frame");
 
-  var items = document.querySelectorAll('.mover');
+  var items = document.getElementsByClassName('mover');
   /**
     * Variable declared to keep the .scrollTop query out of the
     * 'for' loop to prevent forced synchronous layout
     */
   var scroll = scrollTop;
-
+  var phase = [];
+  for (var i = 0; i < 5; i++) {
+    phase.push(Math.sin((scroll / 1250) + i)*100);
+  }
   for (var i = 0; i < items.length; i++) {
-    var phase = Math.sin((scroll / 1250) + (i % 5));
-    items[i].style.left = items[i].basicLeft + 100 * phase + 'px';
+    items[i].style.left = items[i].basicLeft + phase[i%5] + 'px';
   }
 
   // User Timing API to the rescue again. Seriously, it's worth learning.
