@@ -3,7 +3,7 @@
 ### Getting Started:
 
 To launch the app you can:
-- open this [link](https://github.com/Pasquale-Guglielmi/frontend-nanodegree-mobile-portfolio)
+- open this [link](https://pasquale-guglielmi.github.io/frontend-nanodegree-mobile-portfolio/)
 - clone or download this repository and open the *index.html* file on your browser
 
 ### Optimizations made:
